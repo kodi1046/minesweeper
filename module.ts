@@ -52,30 +52,30 @@ export class Grid {
 
     /**
      * gets the cell at index (row,col) in the grid
-     * @param col < cols
      * @param row < rows
+     * @param col < cols
      */
-    cell_at(col: number, row: number): Cell {
-
+    cell_at(row: number, col: number): Cell {
+        return this.grid[row][col];
     }
 
     /**
-     * inserts cell at index (i,j) in grid
-     * @param col < cols
+     * inserts cell at index (row, col) in grid
      * @param row < rows
+     * @param col < cols
      * @param cell 
      */
-    insert(col: number, row: number, cell: Cell) {
-
+    insert_at(row: number, col: number, cell: Cell) {
+        this.grid[row][col] = cell;
     }
 
     /**
-     * sets covered to true at index (row, col)
+     * sets state to revealed at index (row, col)
      * @param row < rows
      * @param col < cols
      */
     reveal_at(row: number, col: number) {
-        
+        this.grid[row][col].reveal()
     }
 
     /**
@@ -133,22 +133,22 @@ export class Cell {
      * sets state to revealed
      */
     reveal() {
-        
+        this.state = "revealed";
     }
 
     /**
-     * changes the state of the cell
+     * sets the state of the cell
      * @param state 
      */
-    change_state(state: CellState) {
+    set_state(state: CellState) {
         this.state = state;
     }
 
     /**
-     * changes the type of the cell
+     * sets the type of the cell
      * @param type 
      */
-    change_type(type: CellType) {
+    set_type(type: CellType) {
         this.type = type;
     }
 
