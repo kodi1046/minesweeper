@@ -29,6 +29,7 @@ export class Grid {
         
         this.rows = rows;
         this.cols = cols;
+        this.mines = mines;
     }
 
     /**
@@ -91,7 +92,7 @@ export class Grid {
      * @param row < rows
      * @param col < cols
      */
-    reveal_at(row: number, col: number) {
+    reveal_at(row: number, col: number) : void {
         if ((row < this.rows && col < this.cols) && (row >= 0 && col >= 0)) {
             this.grid[row][col].reveal()
         } else {
@@ -102,8 +103,32 @@ export class Grid {
     /**
      * reveals all neighbor cells
      */
-    reveal_neighbors() {
+    reveal_neighbors(row: number, col: number): void {
+        if (row < 0 || row >= this.rows || col < 0 || col >= this.cols) {
+            return;
+        }
 
+        const cell : Cell = this.grid[row][col]; 
+
+        // ends recursion when mine is adjecent or cell is already revealed
+        // TODO: Add a way to see adjacent mines to end recursion
+        if (cell.get_state() === "revealed"){
+            return;
+        }
+        
+        this.reveal_at(row, col);
+
+        for(let i = -1; i <= 1; i++ ){
+            for(let j = -1; j <= 1; j++){
+                if (i === 0 && j === 0){
+                    continue;
+                }
+                const new_row = row + i;
+                const new_col = col + j;
+
+                this.reveal_neighbors(new_row, new_col);
+            }
+        }
     }
 
     /**
