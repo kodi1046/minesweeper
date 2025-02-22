@@ -1,185 +1,152 @@
 import { GridError, InvalidMinesError, NegativeGridError, InvalidIndexError } from "./errors";
 
+type CellGrid = Array<Array<Cell>>;
+
 /**
- * the grid (n x m) (Array matrix). containing l mines, k empty cells. l + k = m*n. 
+ * Represents a grid of size (row_count * col_count), containting Cells...   
  */
 export class Grid {
-    //properties
+    
+    //Properties
     grid: CellGrid;
-    mines: number;
-    rows: number;
-    cols: number;
+    row_count: number;
+    col_count: number;
+    mine_count: number;
 
-    /**
-     * constructs a grid
-     * @param mines > 0
-     * @param rows 
-     * @param cols 
-     */
-    constructor(mines: number, rows: number, cols: number) {
-        if (mines < rows * cols && mines > 0) {
-            this.mines = mines;
-        } else {
-            throw new InvalidMinesError(mines, rows, cols);
-        }
+    // Constructs an empty grid
+    constructor(row_count: number, col_count: number) {
 
-        if (rows <= 0 || cols <= 0) {
-            throw new NegativeGridError(rows, cols);
-        }
-        
-        this.rows = rows;
-        this.cols = cols;
+        if(row_count < 0 || col_count < 0)
+            throw new NegativeGridError(row_count, col_count);
+
+        this.grid = Array<Array<Cell>>(row_count).fill(Array<Cell>(col_count).fill(new Cell("empty", "unrevealed")))
+        this.row_count = row_count;
+        this.col_count = col_count;
+        this.mine_count = 0;
+    }
+
+
+    // Gets the number of rows
+    get_row_count(): number {
+        return this.row_count;
+    }
+
+    // Gets the number of columns
+    get_col_count(): number {
+        return this.row_count;
+    }
+
+    // Gets the number of mine cells
+    get_mine_count(): number {
+        return this.mine_count;
+    }
+
+    // Gets the number of empty cells
+    get_empty_count(): number {
+        return this.row_count * this.col_count - this.mine_count;
+    }
+
+    // Checks if a given index is valid
+    is_valid_index(row: number, col: number): boolean {
+        return (row < this.row_count && row >= 0 && 
+                col < this.col_count && col >= 0)
     }
 
     /**
-     * gets the number of rows of the grid
-     */
-    get_rows(): number {
-        return this.rows;
-    }
-
-    /**
-     * gets the number of cols of the grid
-     */
-    get_cols(): number {
-        return this.cols;
-    }
-
-    /**
-     * gets the number of mines of the grid
-     */
-    get_mines(): number {
-        return this.mines;
-    }
-
-    /**
-     * gets the number of empty cells of the grid
-     */
-    get_empties(): number {
-        return this.rows * this.cols - this.mines;
-    }
-
-    /**
-     * gets the cell at index (row,col) in the grid
-     * @param row < rows
-     * @param col < cols
+     * Gets the cell at index (row, col)
+     * @param row < row_count
+     * @param col < col_count
      */
     cell_at(row: number, col: number): Cell {
-        if ((row < this.rows && col < this.cols) && (row >= 0 && col >= 0)) {
+        if(this.is_valid_index(row, col))
             return this.grid[row][col];
-        } else {
-            throw new InvalidIndexError(row, col, this.rows, this.cols);
-        }   
+        else
+            throw new InvalidIndexError(row, col, this.row_count, this.col_count);
     }
-
-    /**
-     * inserts cell at index (row, col) in grid
-     * @param row < rows
-     * @param col < cols
-     * @param cell 
-     */
-    insert_at(row: number, col: number, cell: Cell) {
-        if ((row < this.rows && col < this.cols) && (row >= 0 && col >= 0)) {
-            this.grid[row][col] = cell;
-        } else {
-            throw new InvalidIndexError(row, col, this.rows, this.cols);
-        }
-    }
-
+    
     /**
      * sets state to revealed at index (row, col)
-     * @param row < rows
-     * @param col < cols
+     * @param row < row_count && row >= 0
+     * @param col < col_count && col >= 0
+     * @param type
      */
-    reveal_at(row: number, col: number) {
-        if ((row < this.rows && col < this.cols) && (row >= 0 && col >= 0)) {
-            this.grid[row][col].reveal()
-        } else {
-            throw new InvalidIndexError(row, col, this.rows, this.cols);
-        }
+    set_type_at(row: number, col: number, type: CellType ) {
+        if(this.is_valid_index(row, col))
+            this.cell_at(row, col).set_type(type);
+        else
+            throw new InvalidIndexError(row, col, this.row_count, this.col_count);
     }
 
     /**
-     * reveals all neighbor cells
+     * Updates the state of a cell at index (row, col)
+     * @param row < row_count && row >= 0
+     * @param col < col_count && col >= 0
+     * @param state
      */
-    reveal_neighbors() {
+      set_state_at(row: number, col: number, state: CellState) {
+        if(this.is_valid_index(row, col))
+            this.cell_at(row, col).set_state(state);
+        else
+            throw new InvalidIndexError(row, col, this.row_count, this.col_count);
+    }
+
+    /**
+     * Reveals all neighbors of a given index
+     * @param row < row_count && row >= 0
+     * @param col < col_count && col >= 0
+     */
+    reveal_neighbors(row: number, col: number) {
 
     }
 
     /**
-     * generates the given grid
+     * Populates the grid with an @amount of mines at random indices, excluding those in blacklist
+     * @param amount
+     * @param blacklist 
+     * Recursive ?
      */
-    generate() {
-        this.grid = Array.from({ length: this.rows }, () => 
-            Array.from({ length: this.cols}, () => 
-                new Cell("empty")));
+    add_mines(amount: number, blacklist: Array<[number, number]> = []) {
+        
     }
 
 };
 
+type CellType = "mine" | "empty";
+type CellState = "revealed" | "unrevealed" | "flagged";
+
 /**
- * a grid cell. Has a state and a type
+ * A cell with a type and a state
  */
 export class Cell {
-    // properties
-    state: CellState = "unrevealed";
+
+    // Properties
     type: CellType;
+    state: CellState;
 
-    /**
-     * constructs a cell
-     * @param row < rows
-     * @param col < cols
-     * @param state (either covered, uncovered or flagged)
-     * @param type (either empty or mine)
-     */
-    constructor(type: CellType) {
-        this.type = type;
-    }
-    /**
-     * gets the state of the cell
-     * @returns CellState
-     */
-    get_state(): CellState {
-        return this.state;
+    // Constructs a cell
+    constructor(type: CellType, state: CellState) {
+        this.type = type;   
+        this.state = state;
     }
 
-    /**
-     *gets the type of the cell
-     * @returns CellType
-     */
+    // Gets the type of the cell
     get_type(): CellType {
         return this.type;
     }
 
-    /**
-     * sets state to revealed
-     */
-    reveal() {
-        this.state = "revealed";
+    // Gets the state of the cell
+    get_state(): CellState {
+        return this.state;
     }
 
-    /**
-     * sets the state of the cell
-     * @param state 
-     */
-    set_state(state: CellState) {
+    // Updates the state of the cell
+    set_state(state: CellState): void {
         this.state = state;
     }
 
-    /**
-     * sets the type of the cell
-     * @param type 
-     */
-    set_type(type: CellType) {
+    // Updates the type of the cell
+    set_type(type: CellType): void {
         this.type = type;
     }
 
 };
-
-
-type CellType = "mine" | "empty";
-
-type CellState = "revealed" | "unrevealed" | "flagged";
-
-type CellGrid = Array<Array<Cell>>;
-
