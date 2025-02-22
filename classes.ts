@@ -13,13 +13,16 @@ export class Grid {
     col_count: number;
     mine_count: number;
 
-    // Constructs an empty grid
+    // Constructs a grid of unrevealed empty cells
     constructor(row_count: number, col_count: number) {
 
         if(row_count < 0 || col_count < 0)
             throw new NegativeGridError(row_count, col_count);
 
-        this.grid = Array<Array<Cell>>(row_count).fill(Array<Cell>(col_count).fill(new Cell("empty", "unrevealed")))
+        this.grid = Array.from({ length: row_count }, () => 
+            Array.from({ length: col_count}, () => 
+                new Cell("empty", "unrevealed")));
+
         this.row_count = row_count;
         this.col_count = col_count;
         this.mine_count = 0;
@@ -71,10 +74,7 @@ export class Grid {
      * @param type
      */
     set_type_at(row: number, col: number, type: CellType ) {
-        if(this.is_valid_index(row, col))
-            this.cell_at(row, col).set_type(type);
-        else
-            throw new InvalidIndexError(row, col, this.row_count, this.col_count);
+        this.cell_at(row, col).set_type(type);
     }
 
     /**
@@ -84,10 +84,7 @@ export class Grid {
      * @param state
      */
       set_state_at(row: number, col: number, state: CellState) {
-        if(this.is_valid_index(row, col))
-            this.cell_at(row, col).set_state(state);
-        else
-            throw new InvalidIndexError(row, col, this.row_count, this.col_count);
+        this.cell_at(row, col).set_state(state);
     }
 
     /**
