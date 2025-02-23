@@ -16,9 +16,9 @@ export class Grid {
     // Constructs a grid of unrevealed empty cells
     constructor(row_count: number, col_count: number) {
 
-        if(row_count < 0 || col_count < 0)
+        if(row_count < 0 || col_count < 0) {
             throw new NegativeGridError(row_count, col_count);
-
+        }
         this.grid = Array.from({ length: row_count }, () => 
             Array.from({ length: col_count}, () => 
                 new Cell("empty", "unrevealed")));
@@ -61,10 +61,12 @@ export class Grid {
      * @param col < col_count
      */
     cell_at(row: number, col: number): Cell {
-        if(this.is_valid_index(row, col))
+        if(this.is_valid_index(row, col)) {
             return this.grid[row][col];
-        else
+        }
+        else {
             throw new InvalidIndexError(row, col, this.row_count, this.col_count);
+        }
     }
     
     /**
@@ -97,14 +99,47 @@ export class Grid {
     }
 
     /**
-     * Populates the grid with an @amount of mines at random indices, excluding those in blacklist
+     * Populates the grid with an @amount of mines at random indices, excluding those in @blacklist
      * @param amount
-     * @param blacklist 
-     * Recursive ?
+     * @param blacklist
+     * Recursive
      */
-    add_mines(amount: number, blacklist: Array<[number, number]> = []) {
+    populate_with_mines(amount: number, blacklist: Array<[number, number]> = []) {
+        const grid = this;
+
+        function add_mine(amount: number, whitelist: Array<[number, number]>) {
+            if (amount > 0 && whitelist.length > 0) {
+            // Select a random cell-index from whitelist
+            const random_number = Math.floor(Math.random() * whitelist.length);
+            const row = whitelist[random_number][0];
+            const col = whitelist[random_number][1];
+
+            // Set the cell corresponding to the selected cell-index from whitelist into a mine
+            grid.cell_at(row, col).set_type("mine");
+
+            // Remove the cell-index from whitelist
+            whitelist.splice(random_number, 1);
+
+            add_mine(amount - 1, whitelist);
+            }
+        }
         
+        // Store all indices of the grid in an array
+        const all_indices: Array<[number, number]> = [];
+        for(let i = 0; i < this.row_count; i = i + 1) {
+            for(let j = 0; j < this.col_count; j = j + 1) {
+                all_indices.push([i, j]);
+            }
+        }
+
+        // Filter out indices found in blacklist
+        const whitelist = all_indices.filter((index) => !blacklist.some((blacklisted_index) => index[0] === blacklisted_index[0] && index[1] === blacklisted_index[1]));
+
+        
+        add_mine(amount, whitelist);
     }
+
+
 
 };
 
@@ -137,12 +172,12 @@ export class Cell {
     }
 
     // Updates the state of the cell
-    set_state(state: CellState): void {
+    set_state(state: CellState) {
         this.state = state;
     }
 
     // Updates the type of the cell
-    set_type(type: CellType): void {
+    set_type(type: CellType) {
         this.type = type;
     }
 
