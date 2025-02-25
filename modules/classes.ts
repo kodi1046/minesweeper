@@ -54,8 +54,19 @@ export class Grid {
      * @param row 
      * @param col 
      */
-    get_neighbors(row: number, col: number) {
-        /*######*/
+    get_neighbors(row, col): Array<[number, number]> {
+        const neighbors: Array<[number, number]> = 
+                        [
+                        [row - 1, col - 1],
+                        [row - 1, col],
+                        [row - 1, col + 1],
+                        [row, col - 1],
+                        [row, col + 1],
+                        [row + 1, col - 1],
+                        [row + 1, col],
+                        [row + 1, col + 1],
+                        ]
+        return neighbors.filter((index) => this.is_valid_index(index[0], index[1]))
     }
 
     // Checks if a given index is valid
@@ -106,6 +117,19 @@ export class Grid {
         this.cell_at(row, col).set_state(state);
     }
 
+    // Reveals a cell, reveals all neighboring cells if it has no neighboring mines
+    reveal(row: number, col: number) 
+    {
+        const cell = this.cell_at(row, col);
+        
+        if(cell.get_state() != "flagged") {
+            if(cell.mine_count === 0) {
+                this.reveal_neighbors(row, col);
+            }
+            cell.set_state("revealed");
+        }
+    }
+
     /**
      * Reveals all neighbors of a given index
      * @param row < row_count && row >= 0
@@ -132,7 +156,7 @@ export class Grid {
             const col = whitelist[random_number][1];
 
             // Set the cell corresponding to the selected cell-index from whitelist into a mine
-            grid.cell_at(row, col).set_type("mine");
+            grid.set_mine(row, col);
 
             // Remove the cell-index from whitelist
             whitelist.splice(random_number, 1);
@@ -156,7 +180,18 @@ export class Grid {
         add_mine(amount, whitelist);
     }
 
+    // Sets a mine at the given index and increments neighbor_mine_count of all neighbors
+    set_mine(row: number, col: number) {
+        const neighbors: Array<[number, number]> = this.get_neighbors(row, col);
+        
+        neighbors.forEach((cell_index) => { const neighbor = this.cell_at(cell_index[0], cell_index[1])
+                                            neighbor.mine_count = neighbor.mine_count + 1; });
+        this.cell_at(row, col).set_type("mine");
+    }
+
 };
+
+
 
 type CellType = "mine" | "empty";
 type CellState = "revealed" | "unrevealed" | "flagged";
@@ -169,6 +204,7 @@ export class Cell {
     // Properties
     type: CellType;
     state: CellState;
+    mine_count: number = 0;
 
     // Constructs a cell
     constructor(type: CellType, state: CellState) {
@@ -195,6 +231,4 @@ export class Cell {
     set_type(type: CellType) {
         this.type = type;
     }
-
-
 };
