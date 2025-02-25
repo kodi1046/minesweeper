@@ -49,10 +49,27 @@ export class Grid {
         return this.row_count * this.col_count - this.mine_count;
     }
 
+    /**
+     * gets the neighbors of a given cell at @Index (@row, @col)
+     * @param row 
+     * @param col 
+     */
+    get_neighbors(row: number, col: number) {
+        /*######*/
+    }
+
     // Checks if a given index is valid
     is_valid_index(row: number, col: number): boolean {
         return (row < this.row_count && row >= 0 && 
                 col < this.col_count && col >= 0)
+    }
+
+    // checks if mines are valid
+    is_valid_mines_count(mines: number): boolean {
+        if (mines < 0 || mines > this.row_count || mines > this.col_count ) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -89,11 +106,11 @@ export class Grid {
         this.cell_at(row, col).set_state(state);
     }
 
-/**
- * Counts adjaacent mines of a cell
- * @param row < row_count && row >= 0
- * @param col < col_count && col >= 0
- */
+    /**
+     * Counts adjaacent mines of a cell
+     * @param row < row_count && row >= 0
+     * @param col < col_count && col >= 0
+     */
     count_adjacent_mines(row: number, col: number): number {
         let count = 0;
     
@@ -120,7 +137,6 @@ export class Grid {
      * Reveals all neighbors of a given index
      * @param row < row_count && row >= 0
      * @param col < col_count && col >= 0
-     * Recursive
      */
     reveal_neighbors(row: number, col: number) {
         if (row < 0 || row >= this.row_count || col < 0 || col >= this.col_count) {
@@ -190,7 +206,6 @@ export class Grid {
         add_mine(amount, whitelist);
     }
 
-
 };
 
 type CellType = "mine" | "empty";
@@ -210,7 +225,6 @@ export class Cell {
     constructor(type: CellType, state: CellState) {
         this.type = type;   
         this.state = state;
-        this.adjacentMines = 0;
     }
 
     // Gets the type of the cell
@@ -242,4 +256,5 @@ export class Cell {
     get_adjacent_mines(): number {
         return this.adjacentMines;
     }
+
 };
