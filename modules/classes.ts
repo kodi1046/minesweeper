@@ -254,6 +254,7 @@ export class Cell {
     set_type(type: CellType) {
         this.type = type;
     }
+<<<<<<< HEAD
 
     // Bool for mines
     isMine(): boolean {
@@ -265,4 +266,6 @@ export class Cell {
         return this.mine_count;
     }
 
+=======
+>>>>>>> d9c553cf93aff0fa75c1c3d6dac9d4e39843cd3d
 };
