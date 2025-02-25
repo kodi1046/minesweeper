@@ -4,6 +4,7 @@ import { GridError, InvalidIndexError, InvalidMinesError, NegativeGridError } fr
 // declarations
 const ACCESS_REVEALED = "can't move to a revealed cell";
 type Move = "flag" | "reveal";
+type Result = "win" | "lose" | void;
 
 /**
  * calculates a move to position (@row, @col)
@@ -11,42 +12,29 @@ type Move = "flag" | "reveal";
  * @param col 
  * @param flag 
  */
-export function player_move(row: number, col: number, move: Move = "reveal", grid: Grid) {
-    if (!grid.is_valid_index(row, col)) {
-        throw new InvalidIndexError(grid.get_row_count(), grid.get_col_count(), row, col);
+export function player_move(row: number, col: number, move: Move = "reveal", grid: Grid): Result {
+    // Cell at given position
+    const cell = grid.cell_at(row, col);
+
+    // Reveal the cell
+    if(move === "reveal") {
+        if (cell.get_state() !== "flagged") {
+            grid.reveal(row, col);
+            
+            if(cell.get_type() === "mine") {
+                return "lose";
+            }
+        } 
     }
 
-    // cell at given position
-    let cell = grid.cell_at(row, col);
-
-    // check if cell is revealed
-    if (cell.get_state() === "revealed") {
-        console.log(ACCESS_REVEALED);
-        // make player move again
-    }
-
-    // check if flag is passed
-    if (move as Move === "flag") {
+    // Flag/unflag the cell
+    if (move === "flag") {
         if (cell.get_state() !== "flagged") {
             cell.set_state("flagged");
-            return 
         } else {
-            // sets state to "unrevealed"
             cell.set_state("unrevealed");
         }
     }
-
-    // handle case when cell is a mine
-    if (cell.get_type() === "mine") {
-        cell.set_state("revealed");
-        // game over
-    }
-
-    // general case
-    cell.set_state("revealed");
-
-    grid.reveal_neighbors(row, col);
-
 }
 
 /**
