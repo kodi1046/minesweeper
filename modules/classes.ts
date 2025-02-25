@@ -54,8 +54,19 @@ export class Grid {
      * @param row 
      * @param col 
      */
-    get_neighbors(row: number, col: number) {
-        /*######*/
+    get_neighbors(row, col): Array<[number, number]> {
+        const neighbors: Array<[number, number]> = 
+                        [
+                        [row - 1, col - 1],
+                        [row - 1, col],
+                        [row - 1, col + 1],
+                        [row, col - 1],
+                        [row, col + 1],
+                        [row + 1, col - 1],
+                        [row + 1, col],
+                        [row + 1, col + 1],
+                        ]
+        return neighbors.filter((index) => this.is_valid_index(index[0], index[1]))
     }
 
     // Checks if a given index is valid
@@ -106,31 +117,17 @@ export class Grid {
         this.cell_at(row, col).set_state(state);
     }
 
-    /**
-     * Counts adjaacent mines of a cell
-     * @param row < row_count && row >= 0
-     * @param col < col_count && col >= 0
-     */
-    count_adjacent_mines(row: number, col: number): number {
-        let count = 0;
-    
-        for (let i = -1; i <= 1; i++) {
-            for (let j = -1; j <= 1; j++) {
-                if (i === 0 && j === 0) {
-                    continue;
-                };
-    
-                const new_row = row + i;
-                const new_col = col + j;
-    
-                if (new_row >= 0 && new_row < this.row_count && new_col >= 0 && new_col < this.col_count) {
-                    if (this.grid[new_row][new_col].isMine()) {
-                        count++;
-                    }
-                }
+    // Reveals a cell, reveals all neighboring cells if it has no neighboring mines
+    reveal(row: number, col: number) 
+    {
+        const cell = this.cell_at(row, col);
+        
+        if(cell.get_state() != "flagged") {
+            if(cell.mine_count === 0) {
+                this.reveal_neighbors(row, col);
             }
+            cell.set_state("revealed");
         }
-        return count;
     }
 
     /**
@@ -182,7 +179,7 @@ export class Grid {
             const col = whitelist[random_number][1];
 
             // Set the cell corresponding to the selected cell-index from whitelist into a mine
-            grid.cell_at(row, col).set_type("mine");
+            grid.set_mine(row, col);
 
             // Remove the cell-index from whitelist
             whitelist.splice(random_number, 1);
@@ -206,7 +203,18 @@ export class Grid {
         add_mine(amount, whitelist);
     }
 
+    // Sets a mine at the given index and increments neighbor_mine_count of all neighbors
+    set_mine(row: number, col: number) {
+        const neighbors: Array<[number, number]> = this.get_neighbors(row, col);
+        
+        neighbors.forEach((cell_index) => { const neighbor = this.cell_at(cell_index[0], cell_index[1])
+                                            neighbor.mine_count = neighbor.mine_count + 1; });
+        this.cell_at(row, col).set_type("mine");
+    }
+
 };
+
+
 
 type CellType = "mine" | "empty";
 type CellState = "revealed" | "unrevealed" | "flagged";
@@ -219,7 +227,7 @@ export class Cell {
     // Properties
     type: CellType;
     state: CellState;
-    adjacentMines: number;
+    mine_count: number = 0;
 
     // Constructs a cell
     constructor(type: CellType, state: CellState) {
@@ -254,7 +262,7 @@ export class Cell {
 
     // Gets numbers of adjacent mines
     get_adjacent_mines(): number {
-        return this.adjacentMines;
+        return this.mine_count;
     }
 
 };
