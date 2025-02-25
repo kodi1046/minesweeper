@@ -49,10 +49,27 @@ export class Grid {
         return this.row_count * this.col_count - this.mine_count;
     }
 
+    /**
+     * gets the neighbors of a given cell at @Index (@row, @col)
+     * @param row 
+     * @param col 
+     */
+    get_neighbors(row: number, col: number) {
+        /*######*/
+    }
+
     // Checks if a given index is valid
     is_valid_index(row: number, col: number): boolean {
         return (row < this.row_count && row >= 0 && 
                 col < this.col_count && col >= 0)
+    }
+
+    // checks if mines are valid
+    is_valid_mines_count(mines: number): boolean {
+        if (mines < 0 || mines > this.row_count || mines > this.col_count ) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -139,8 +156,6 @@ export class Grid {
         add_mine(amount, whitelist);
     }
 
-
-
 };
 
 type CellType = "mine" | "empty";
@@ -180,5 +195,6 @@ export class Cell {
     set_type(type: CellType) {
         this.type = type;
     }
+
 
 };
