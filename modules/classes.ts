@@ -12,6 +12,7 @@ export class Grid {
     row_count: number;
     col_count: number;
     mine_count: number;
+    revealed_empty_count: number;
 
     // Constructs a grid of unrevealed empty cells
     constructor(row_count: number, col_count: number) {
@@ -122,12 +123,22 @@ export class Grid {
     {
         const cell = this.cell_at(row, col);
         
-        if(cell.get_state() != "flagged") {
-            if(cell.mine_count === 0) {
+        if(cell.get_state() === "unrevealed") {
+            if(cell.neighboring_mine_count === 0) {
                 this.reveal_neighbors(row, col);
             }
             cell.set_state("revealed");
+
+            // Increment the number of unrevealed empty cells
+            if(cell.get_type() === "empty") {
+            this.revealed_empty_count = this.revealed_empty_count + 1;
+            }
         }
+    }
+
+    reveal_neighbors(row: number, col: number) {
+        const neighbors: Array<[number, number]> = this.get_neighbors(row, col);
+        neighbors.forEach((neighbor) => this.reveal(neighbor[0], neighbor[1]));
     }
 
     /**
@@ -135,6 +146,7 @@ export class Grid {
      * @param row < row_count && row >= 0
      * @param col < col_count && col >= 0
      */
+    /*
     reveal_neighbors(row: number, col: number) {
         if (row < 0 || row >= this.row_count || col < 0 || col >= this.col_count) {
             return;
@@ -161,6 +173,7 @@ export class Grid {
             }
         }
     }
+    */
 
     /**
      * Populates the grid with an @amount of mines at random indices, excluding those in @blacklist
@@ -196,19 +209,25 @@ export class Grid {
             }
         }
 
-        // Filter out indices found in blacklist
-        const whitelist = all_indices.filter((index) => !blacklist.some((blacklisted_index) => index[0] === blacklisted_index[0] && index[1] === blacklisted_index[1]));
+        // Create a whitelist containing all indices not found in blacklist
+        const whitelist = all_indices.filter((index) =>
+             !blacklist.some((blacklisted_index) => index[0] === blacklisted_index[0] && index[1] === blacklisted_index[1]));
 
         
         add_mine(amount, whitelist);
     }
 
-    // Sets a mine at the given index and increments neighbor_mine_count of all neighbors
+    // Sets a mine at the given index and increments neighboring_mine_count of each neighbor
     set_mine(row: number, col: number) {
+
+        // Acquire the indices of each of the mine's neighbors
         const neighbors: Array<[number, number]> = this.get_neighbors(row, col);
         
+        // Increments mine_count for each neighbor of the mine
         neighbors.forEach((cell_index) => { const neighbor = this.cell_at(cell_index[0], cell_index[1])
-                                            neighbor.mine_count = neighbor.mine_count + 1; });
+                                            neighbor.neighboring_mine_count = neighbor.neighboring_mine_count + 1; });
+
+        // Set the type of the cell to "mine"
         this.cell_at(row, col).set_type("mine");
     }
 
@@ -227,7 +246,7 @@ export class Cell {
     // Properties
     type: CellType;
     state: CellState;
-    mine_count: number = 0;
+    neighboring_mine_count: number = 0;
 
     // Constructs a cell
     constructor(type: CellType, state: CellState) {
@@ -254,7 +273,6 @@ export class Cell {
     set_type(type: CellType) {
         this.type = type;
     }
-<<<<<<< HEAD
 
     // Bool for mines
     isMine(): boolean {
@@ -263,9 +281,7 @@ export class Cell {
 
     // Gets numbers of adjacent mines
     get_adjacent_mines(): number {
-        return this.mine_count;
+        return this.neighboring_mine_count;
     }
 
-=======
->>>>>>> d9c553cf93aff0fa75c1c3d6dac9d4e39843cd3d
 };
