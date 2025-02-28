@@ -49,6 +49,7 @@ export class Grid {
     get_empty_count(): number {
         return this.row_count * this.col_count - this.mine_count;
     }
+    
 
     /**
      * gets the neighbors of a given cell at @Index (@row, @col)
@@ -225,10 +226,15 @@ export class Grid {
         
         // Increments mine_count for each neighbor of the mine
         neighbors.forEach((cell_index) => { const neighbor = this.cell_at(cell_index[0], cell_index[1])
-                                            neighbor.neighboring_mine_count = neighbor.neighboring_mine_count + 1; });
+                                            neighbor.neighboring_mine_count++; });
 
         // Set the type of the cell to "mine"
         this.cell_at(row, col).set_type("mine");
+    }
+
+    // checks if the board is in a state of winning (checks win-condition)
+    has_won(): boolean {
+        return this.revealed_empty_count === this.get_empty_count();
     }
 
 };

@@ -16,6 +16,8 @@ export function player_move(row: number, col: number, move: Move = "reveal", gri
     // Cell at given position
     const cell = grid.cell_at(row, col);
 
+    
+
     // Reveal the cell
     if(move === "reveal") {
         if (cell.get_state() !== "flagged") {
@@ -34,6 +36,10 @@ export function player_move(row: number, col: number, move: Move = "reveal", gri
         } else {
             cell.set_state("unrevealed");
         }
+    }
+
+    if (grid.has_won()) {
+        return "win";
     }
 }
 
