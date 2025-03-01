@@ -71,22 +71,18 @@ while (true) {
  */
 function get_user_input(type: string): number {
     const input: string | null = prompt(`input the desired number of ${type}`);
-    try { 
-        const parsed_input = parseInt(input as string);
-        if (typeof parsed_input !== 'number') {
-            console.error("invalid input");
-            throw new Error("invalid input");
-        }
-
-        if (parsed_input <= 0) {
-            console.error("invalid input");
-            throw new Error("invalid input");
-        }
-
-        return parsed_input;
-    } catch {
+    if (input === null){
+        console.error("Please provide an input")
         return get_user_input(type);
     }
+    const parsed_input = parseInt(input);
+
+    // check if it's not a number or it's less than or equal to 0
+    if (isNaN(parsed_input) || parsed_input <= 0){
+        console.error("invalid input");
+        return get_user_input(type);
+    }
+    return parsed_input;
 }
 
 
