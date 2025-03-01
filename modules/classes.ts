@@ -12,10 +12,11 @@ export class Grid {
     row_count: number;
     col_count: number;
     mine_count: number;
+    desired_mines: number
     revealed_empty_count: number;
 
     // Constructs a grid of unrevealed empty cells
-    constructor(row_count: number, col_count: number) {
+    constructor(row_count: number, col_count: number, desired_mines: number) {
 
         if(row_count < 0 || col_count < 0) {
             throw new NegativeGridError(row_count, col_count);
@@ -26,6 +27,7 @@ export class Grid {
 
         this.row_count = row_count;
         this.col_count = col_count;
+        this.desired_mines = desired_mines;
         this.mine_count = 0;
     }
 
@@ -122,6 +124,14 @@ export class Grid {
     // Reveals a cell, reveals all neighboring cells if it has no neighboring mines
     reveal(row: number, col: number) 
     {
+        // Handle initial reveal to populate grid with mines outside the starting area.
+        if(this.revealed_empty_count === 0) {
+            const start = this.get_neighbors(row, col);
+            start.push([row, col]);
+
+            this.populate_with_mines(this.desired_mines, start);
+        }
+
         const cell = this.cell_at(row, col);
         
         if(cell.get_state() === "unrevealed") {
