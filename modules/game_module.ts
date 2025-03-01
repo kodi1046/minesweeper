@@ -3,7 +3,7 @@ import { GridError, InvalidIndexError, InvalidMinesError, NegativeGridError } fr
 
 // declarations
 const ACCESS_REVEALED = "can't move to a revealed cell";
-type Move = {row: number, col: number, type: "reveal" | "flag"}
+export type Move = {row: number, col: number, type: "reveal" | "flag"}
 type Result = "win" | "lose" | void;
 
 /**
@@ -29,9 +29,10 @@ export function player_move(move: Move, grid: Grid): Result {
 
     // Flag/unflag the cell
     if (move.type === "flag") {
-        if (cell.get_state() !== "flagged") {
+        if (cell.get_state() === "unrevealed") {
             cell.set_state("flagged");
-        } else {
+        }
+        else if (cell.get_state() === "flagged") {
             cell.set_state("unrevealed");
         }
     }
@@ -45,10 +46,10 @@ export function player_move(move: Move, grid: Grid): Result {
  * returs a generated @Grid
  * @param mines 
  */
-export function setup_environment(rows: number, cols: number, mines: number): Grid {
-    const grid = new Grid(rows, cols);
-    if (!grid.is_valid_mines_count(mines)) {
-        throw new InvalidMinesError(mines, rows, cols);
+export function setup_environment(rows: number, cols: number, desired_mines: number): Grid {
+    const grid = new Grid(rows, cols, desired_mines);
+    if (!grid.is_valid_mines_count(desired_mines)) {
+        throw new InvalidMinesError(desired_mines, rows, cols);
     }
     
     return grid;

@@ -29,6 +29,7 @@ export class Grid {
         this.col_count = col_count;
         this.desired_mines = desired_mines;
         this.mine_count = 0;
+        this.revealed_empty_count = 0;
     }
 
 
@@ -70,7 +71,7 @@ export class Grid {
                         [row + 1, col],
                         [row + 1, col + 1],
                         ]
-        return neighbors.filter((index) => this.is_valid_index(index[0], index[1]))
+        return neighbors.filter((index) => this.is_valid_index(index[0], index[1]));
     }
 
     // Checks if a given index is valid
@@ -128,7 +129,6 @@ export class Grid {
         if(this.revealed_empty_count === 0) {
             const start = this.get_neighbors(row, col);
             start.push([row, col]);
-
             this.populate_with_mines(this.desired_mines, start);
         }
 
@@ -146,18 +146,19 @@ export class Grid {
             }
         }
     }
-
+    
+    /*
     reveal_neighbors(row: number, col: number) {
         const neighbors: Array<[number, number]> = this.get_neighbors(row, col);
-        neighbors.forEach((neighbor) => this.reveal(neighbor[0], neighbor[1]));
+        unrevealed_neighbors.forEach((neighbor) => this.reveal(neighbor[0], neighbor[1]));
     }
+    */
 
     /**
      * Reveals all neighbors of a given index
      * @param row < row_count && row >= 0
      * @param col < col_count && col >= 0
      */
-    /*
     reveal_neighbors(row: number, col: number) {
         if (row < 0 || row >= this.row_count || col < 0 || col >= this.col_count) {
             return;
@@ -165,12 +166,18 @@ export class Grid {
 
         const cell : Cell = this.grid[row][col]; 
 
-        // ends recursion when mine is adjecent or cell is already revealed
-        if (cell.get_state() === "revealed" || cell.get_adjacent_mines() > 0){
+        // Ends recursion if cell is already revealed, or a mine
+        if (cell.get_state() === "revealed" || cell.isMine()){
             return;
         }
         
         this.set_state_at(row, col, "revealed");
+
+
+        // Ends recursion if cell has adjacent mines
+        if(cell.get_adjacent_mines() > 0) {
+            return;
+        }
 
         for(let i = -1; i <= 1; i++ ){
             for(let j = -1; j <= 1; j++){
@@ -184,7 +191,6 @@ export class Grid {
             }
         }
     }
-    */
 
     /**
      * Populates the grid with an @amount of mines at random indices, excluding those in @blacklist
