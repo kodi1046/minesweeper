@@ -3,7 +3,7 @@ import { GridError, InvalidIndexError, InvalidMinesError, NegativeGridError } fr
 
 // declarations
 const ACCESS_REVEALED = "can't move to a revealed cell";
-type Move = "flag" | "reveal";
+type Move = {row: number, col: number, type: "reveal" | "flag"}
 type Result = "win" | "lose" | void;
 
 /**
@@ -12,16 +12,14 @@ type Result = "win" | "lose" | void;
  * @param col 
  * @param flag 
  */
-export function player_move(row: number, col: number, move: Move = "reveal", grid: Grid): Result {
+export function player_move(move: Move, grid: Grid): Result {
     // Cell at given position
-    const cell = grid.cell_at(row, col);
-
-    
+    const cell = grid.cell_at(move.row, move.col);
 
     // Reveal the cell
-    if(move === "reveal") {
+    if(move.type === "reveal") {
         if (cell.get_state() !== "flagged") {
-            grid.reveal(row, col);
+            grid.reveal(move.row, move.col);
             
             if(cell.get_type() === "mine") {
                 return "lose";
@@ -30,7 +28,7 @@ export function player_move(row: number, col: number, move: Move = "reveal", gri
     }
 
     // Flag/unflag the cell
-    if (move === "flag") {
+    if (move.type === "flag") {
         if (cell.get_state() !== "flagged") {
             cell.set_state("flagged");
         } else {
@@ -44,7 +42,7 @@ export function player_move(row: number, col: number, move: Move = "reveal", gri
 }
 
 /**
- * returs a generated @Grid with the specified amount of mines
+ * returs a generated @Grid
  * @param mines 
  */
 export function setup_environment(rows: number, cols: number, mines: number): Grid {
@@ -52,7 +50,7 @@ export function setup_environment(rows: number, cols: number, mines: number): Gr
     if (!grid.is_valid_mines_count(mines)) {
         throw new InvalidMinesError(mines, rows, cols);
     }
-    grid.populate_with_mines(mines);
+    
     return grid;
 }
 
