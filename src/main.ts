@@ -1,18 +1,76 @@
 import { Cell, Grid } from "../modules/classes";
-import { setup_environment } from "../modules/game_module";
-
-// declarations
-const ROWS = get_user_input("rows");
-const COLS = get_user_input("cols");
-const MINES = get_user_input("mines");
+import { Move, player_move, setup_environment } from "../modules/game_module";
 
 const MINE_SYMBOL = "*";
 const FLAG_SYMBOL = "!";
-const EMPTY_SYMBOL = "~";
-const UNREVEALED_SYMBOL = "o";
+const UNREVEALED_SYMBOL = "~";
+const EMPTY_SYMBOL = " ";
 
+function main() {
+    const row_count = 16 // get_game_setting("rows");
+    const col_count = 30 //get_game_setting("cols");
+    const mine_count = 99 //get_game_setting("mines");
 
-const grid = setup_environment(ROWS, COLS, MINES);
+    const grid = new Grid(row_count, col_count, mine_count);
+
+    // Game loop
+    while(true) {
+        display_grid(grid);
+
+        const move: Move = get_player_move();
+        const result = player_move(move, grid);
+
+        if(result === "win") {
+            console.log("You win!")
+            break;
+        }
+
+        if(result === "lose") {
+            console.log("You lose!")
+            break;
+        }
+    }
+}
+
+main();
+
+// TODO
+function get_player_move(): Move {
+    const row : number = get_user_input("row");
+    const col : number = get_user_input("col");
+
+    let move_type : Move["type"] = "reveal";
+    const choice = get_user_input("0 to flag and 1 to reveal")
+    if (choice === 0){
+        move_type = "flag"
+    }
+    return {col: col, row: row, type: move_type};
+}
+
+/**
+ * asks the user for number of @type "rows" | "cols" | "mines"
+ * @param type 
+ * @returns number of "rows" | "cols" | "mines"
+ */
+function get_game_setting(type: string): number {
+    const input: string | null = prompt(`input the desired number of ${type}`);
+    try { 
+        const parsed_input = parseInt(input as string);
+        if (typeof parsed_input !== 'number') {
+            console.error("invalid input");
+            throw new Error("invalid input");
+        }
+
+        if (parsed_input <= 0) {
+            console.error("invalid input");
+            throw new Error("invalid input");
+        }
+
+        return parsed_input;
+    } catch {
+        return get_game_setting(type);
+    }
+}
 
 function display_grid(grid: Grid) {
     const rows = grid.get_row_count();
@@ -37,31 +95,14 @@ function cell_symbol(cell: Cell): string {
         case "revealed":
             switch (cell.get_type()) {
                 case "empty":
-                    return cell.get_adjacent_mines().toString();
+                    const adjacent_mines = cell.get_adjacent_mines();
+                    return adjacent_mines === 0 ? EMPTY_SYMBOL : adjacent_mines.toString()
+
                 case "mine":
                     return MINE_SYMBOL;
             }
     }
 }
-
-// function get_user_input_coords(): [number, number] {
-//     const input_row: string | null = prompt();
-//     const input_col: string | null = prompt();
-//     const cell =grid.cell_at(parseInt(input_row as string), parseInt(input_col as string));
-//     move
-
-// }
-
-
-
-// game loop
-while (true) {
-
-}
-
-
-
-
 
 
 /**
