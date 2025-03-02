@@ -52,7 +52,7 @@ function cell_symbol(cell: Cell): string {
 
 // }
 
-display_grid(grid);
+
 
 // game loop
 while (true) {
