@@ -21,9 +21,18 @@ export class Grid {
         if(row_count < 0 || col_count < 0) {
             throw new NegativeGridError(row_count, col_count);
         }
-        this.grid = Array.from({ length: row_count }, () => 
-            Array.from({ length: col_count}, () => 
-                new Cell("empty", "unrevealed")));
+        this.grid = [];
+        for (let i = 0; i < row_count; i++) {
+            const row: Cell[] = [];
+            for (let j = 0; j < col_count; j++) { 
+                row.push(new Cell("empty", "unrevealed"));
+            }
+            this.grid.push(row);
+        }
+
+        // this.grid = Array.from({ length: row_count }, () => 
+        //     Array.from({ length: col_count}, () => 
+        //         new Cell("empty", "unrevealed")));
 
         this.row_count = row_count;
         this.col_count = col_count;
@@ -59,7 +68,7 @@ export class Grid {
      * @param row 
      * @param col 
      */
-    get_neighbors(row, col): Array<[number, number]> {
+    get_neighbors(row : number, col : number): Array<[number, number]> {
         const neighbors: Array<[number, number]> = 
                         [
                         [row - 1, col - 1],

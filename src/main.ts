@@ -7,9 +7,9 @@ const UNREVEALED_SYMBOL = "~";
 const EMPTY_SYMBOL = " ";
 
 function main() {
-    const row_count = 16 // get_game_setting("rows");
-    const col_count = 30 //get_game_setting("cols");
-    const mine_count = 99 //get_game_setting("mines");
+    const row_count = get_game_setting("rows");
+    const col_count = get_game_setting("columns");
+    const mine_count = get_game_setting("mines");
 
     const grid = new Grid(row_count, col_count, mine_count);
 
@@ -53,22 +53,21 @@ function get_player_move(): Move {
  * @returns number of "rows" | "cols" | "mines"
  */
 function get_game_setting(type: string): number {
-    const input: string | null = prompt(`input the desired number of ${type}`);
-    try { 
-        const parsed_input = parseInt(input as string);
-        if (typeof parsed_input !== 'number') {
-            console.error("invalid input");
-            throw new Error("invalid input");
-        }
 
-        if (parsed_input <= 0) {
-            console.error("invalid input");
-            throw new Error("invalid input");
-        }
+    while (true){ 
+        const input: string | null = prompt(`input the desired number of ${type}`);
 
+        if (input === null) {
+            console.error("invalid input");
+            continue;
+        }
+        const parsed_input : number = parseInt(input);
+
+        if (parsed_input <= 0 || isNaN(parsed_input)) {
+            console.error("invalid input");
+            continue; 
+        }
         return parsed_input;
-    } catch {
-        return get_game_setting(type);
     }
 }
 
@@ -111,19 +110,21 @@ function cell_symbol(cell: Cell): string {
  * @returns number of "rows" | "cols" | "mines"
  */
 function get_user_input(type: string): number {
-    const input: string | null = prompt(`input the desired number of ${type}`);
-    if (input === null){
-        console.error("Please provide an input")
-        return get_user_input(type);
-    }
-    const parsed_input = parseInt(input);
+    while (true){ 
+        const input: string | null = prompt(`input the desired number of ${type}`);
+        if (input === null){
+            console.error("Please provide an input")
+            continue;
+        }
+        const parsed_input : number = parseInt(input);
 
-    // check if it's not a number or it's less than or equal to 0
-    if (isNaN(parsed_input) || parsed_input <= 0){
-        console.error("invalid input");
-        return get_user_input(type);
+        // check if it's not a number or it's less than or equal to 0
+        if (isNaN(parsed_input) || parsed_input <= 0){
+            console.error("invalid input");
+            continue;
+        }
+        return parsed_input;
     }
-    return parsed_input;
 }
 
 
