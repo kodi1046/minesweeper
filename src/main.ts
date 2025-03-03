@@ -1,6 +1,11 @@
 import { Cell, Grid } from "../modules/classes";
 import { Move, player_move, setup_environment } from "../modules/game_module";
 
+
+import promptSync from 'prompt-sync';
+const prompt = promptSync();
+
+
 const MINE_SYMBOL = "*";
 const FLAG_SYMBOL = "!";
 const UNREVEALED_SYMBOL = "~";
@@ -30,14 +35,15 @@ function main() {
             break;
         }
     }
+    display_grid(grid);
 }
 
 main();
 
 
 function get_player_move(grid : Grid): Move {
-    const row: number = int_input("Enter the row number:", grid.row_count);  
-    const col: number = int_input("Enter the col number:", grid.col_count);  
+    const row: number = int_input("Enter the row number: ", grid.row_count - 1);  
+    const col: number = int_input("Enter the col number: ", grid.col_count - 1);  
 
     let move_type : Move["type"] = "reveal";
     let choice: number = int_input("0 to flag and 1 to reveal: ", 1);
@@ -55,7 +61,7 @@ function get_player_move(grid : Grid): Move {
 function get_game_setting(type: string): number {
 
     while (true){ 
-        let input: string | null = prompt(`input the desired number of ${type}`);
+        let input: string | null = prompt(`input the desired number of ${type}: `);
 
         if (input === null) {
             console.error("invalid input");
@@ -75,13 +81,24 @@ function display_grid(grid: Grid) {
     const rows = grid.get_row_count();
     const cols = grid.get_col_count();
     
+    // Print column markers
+    let col_number_string = "   ";
+    for(let col_number = 0; col_number < cols; col_number++) {
+        col_number_string += ` ${col_number % 10}`
+    }
+    console.log(col_number_string);
+    console.log();
+    
+    //
+    let row_number = 0; // Row marker
     for(const row of grid.grid) {
-        let row_string = "";
+        let row_string = `${row_number % 10}  `;
         for (const cell of row) {
             const symbol = cell_symbol(cell);
                 row_string += ` ${symbol}`;
         }
         console.log(row_string);
+        row_number++;
     }
 }
 
@@ -111,7 +128,7 @@ function cell_symbol(cell: Cell): string {
 
 function int_input(message: string, max: number): number {
     while (true) {
-        let input: string | null = prompt(`input the desired number of ${message}`);
+        let input: string | null = prompt(message);
 
         if (input === null) {
             console.error("Invalid input");

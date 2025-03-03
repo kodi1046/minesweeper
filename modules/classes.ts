@@ -51,7 +51,7 @@ export class Grid {
 
     // Gets the number of columns
     get_col_count(): number {
-        return this.row_count;
+        return this.col_count;
     }
 
     // Gets the number of mine cells
