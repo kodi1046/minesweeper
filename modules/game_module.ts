@@ -30,10 +30,15 @@ export function player_move(move: Move, grid: Grid): Result {
     // Flag/unflag the cell
     if (move.type === "flag") {
         if (cell.get_state() === "unrevealed") {
-            cell.set_state("flagged");
-        }
-        else if (cell.get_state() === "flagged") {
+            if (grid.flag_count < grid.desired_mines) {
+                cell.set_state("flagged");
+                grid.flag_count++;
+            } else {
+                console.log("No flags left")
+            }
+        }else if (cell.get_state() === "flagged") {
             cell.set_state("unrevealed");
+            grid.flag_count--;
         }
     }
 

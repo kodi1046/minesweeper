@@ -14,6 +14,7 @@ export class Grid {
     mine_count: number;
     desired_mines: number
     safe_cells: number;
+    flag_count: number;
 
     // Constructs a grid of unrevealed empty cells
     constructor(row_count: number, col_count: number, desired_mines: number) {
@@ -39,6 +40,7 @@ export class Grid {
         this.desired_mines = desired_mines;
         this.mine_count = 0;
         this.safe_cells = this.get_empty_count();
+        this.flag_count = 0;
     }
 
 

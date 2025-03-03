@@ -17,7 +17,7 @@ function main() {
     while(true) {
         display_grid(grid);
 
-        const move: Move = get_player_move();
+        const move: Move = get_player_move(grid);
         const result = player_move(move, grid);
 
         if(result === "win") {
@@ -34,13 +34,13 @@ function main() {
 
 main();
 
-// TODO
-function get_player_move(): Move {
-    const row : number = get_user_input("row");
-    const col : number = get_user_input("col");
+
+function get_player_move(grid : Grid): Move {
+    const row: number = int_input("Enter the row number:", grid.row_count);  
+    const col: number = int_input("Enter the col number:", grid.col_count);  
 
     let move_type : Move["type"] = "reveal";
-    const choice = get_user_input("0 to flag and 1 to reveal")
+    let choice: number = int_input("0 to flag and 1 to reveal: ", 1);
     if (choice === 0){
         move_type = "flag"
     }
@@ -55,13 +55,13 @@ function get_player_move(): Move {
 function get_game_setting(type: string): number {
 
     while (true){ 
-        const input: string | null = prompt(`input the desired number of ${type}`);
+        let input: string | null = prompt(`input the desired number of ${type}`);
 
         if (input === null) {
             console.error("invalid input");
             continue;
         }
-        const parsed_input : number = parseInt(input);
+        let parsed_input : number = parseInt(input);
 
         if (parsed_input <= 0 || isNaN(parsed_input)) {
             console.error("invalid input");
@@ -103,30 +103,29 @@ function cell_symbol(cell: Cell): string {
     }
 }
 
-
 /**
- * asks the user for number of @type "rows" | "cols" | "mines"
- * @param type 
- * @returns number of "rows" | "cols" | "mines"
+ * Checks if given number is acceptable
+ * @param message 
+ * @param max 
  */
-function get_user_input(type: string): number {
-    while (true){ 
-        const input: string | null = prompt(`input the desired number of ${type}`);
-        if (input === null){
-            console.error("Please provide an input")
-            continue;
-        }
-        const parsed_input : number = parseInt(input);
 
-        // check if it's not a number or it's less than or equal to 0
-        if (isNaN(parsed_input) || parsed_input <= 0){
-            console.error("invalid input");
+function int_input(message: string, max: number): number {
+    while (true) {
+        let input: string | null = prompt(`input the desired number of ${message}`);
+
+        if (input === null) {
+            console.error("Invalid input");
             continue;
         }
-        return parsed_input;
+        const value: number = parseInt(input);
+
+        if (isNaN(value) || value < 0 || value > max) {
+            console.error("Invalid input.");
+            continue;
+        }
+        return value;
     }
 }
-
 
 
 
