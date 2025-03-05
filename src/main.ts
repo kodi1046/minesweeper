@@ -1,5 +1,5 @@
 import { Cell, Grid } from "../modules/classes";
-import { Move, player_move, setup_environment } from "../modules/game_module";
+import { Move, player_move} from "../modules/game_module";
 
 
 import promptSync from 'prompt-sync';
@@ -34,6 +34,7 @@ function main() {
             console.log("You lose!")
             break;
         }
+        console.log(grid.game_state);
     }
     display_grid(grid);
 }
@@ -111,7 +112,7 @@ function cell_symbol(cell: Cell): string {
         case "revealed":
             switch (cell.get_type()) {
                 case "empty":
-                    const adjacent_mines = cell.get_adjacent_mines();
+                    const adjacent_mines = cell.get_neighboring_mine_count();
                     return adjacent_mines === 0 ? EMPTY_SYMBOL : adjacent_mines.toString()
 
                 case "mine":
