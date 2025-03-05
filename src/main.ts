@@ -1,10 +1,8 @@
 import { Cell, Grid } from "../modules/classes";
 import { Move, player_move} from "../modules/game_module";
 
-
 import promptSync from 'prompt-sync';
 const prompt = promptSync();
-
 
 const MINE_SYMBOL = "*";
 const FLAG_SYMBOL = "!";
@@ -34,7 +32,6 @@ function main() {
             console.log("You lose!")
             break;
         }
-        console.log(grid.game_state);
     }
     display_grid(grid);
 }
@@ -78,6 +75,10 @@ function get_game_setting(type: string): number {
     }
 }
 
+/**
+ * Displays a given grid
+ * @param grid 
+ */
 function display_grid(grid: Grid) {
     const rows = grid.get_row_count();
     const cols = grid.get_col_count();
@@ -103,6 +104,12 @@ function display_grid(grid: Grid) {
     }
 }
 
+/**
+ * Finds the appropriate cell for a given cell in the grid
+ * @param cell 
+ * @returns either a UNREVEALED_SYMBOL for unrevealed cells, FLAG_SYMBOl for flagged cells
+ *          or either a MINE_SYMBOL, EMTPY_SYMBOL or a number representing neighboring mines for revealed cells
+ */
 function cell_symbol(cell: Cell): string {
     switch (cell.get_state()) {
         case "flagged":
