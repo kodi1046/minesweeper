@@ -1,4 +1,4 @@
-import { GridError, InvalidMinesError, NegativeGridError, InvalidIndexError } from "./errors";
+import { GridError, InvalidMinesError, NegativeGridError, InvalidIndexError } from "./errors.js";
 
 type CellGrid = Array<Array<Cell>>;
 type GameState = "win" | "lose" | "undecided";
@@ -83,6 +83,19 @@ export class Grid {
         return this.game_state
     }
     
+    /**
+     * Gets all indices of the grid
+     * @returns Array of indices [number, number] representing all cells
+     */
+    get_all_indices(): Array<[number, number]> {
+        const all_indices: Array<[number, number]> = [];
+        for(let i = 0; i < this.row_count; i = i + 1) {
+            for(let j = 0; j < this.col_count; j = j + 1) {
+                all_indices.push([i, j]);
+            }
+        }
+        return all_indices;
+    }
 
     /**
      * Gets indices of all neighbors of a cell
@@ -162,6 +175,7 @@ export class Grid {
             // If revealed cell is a mine, lose the game
             if(cell.get_type() === "mine") {
                 this.game_state = "lose";
+                this.reveal_all_mines();
             }
             
         }
@@ -218,12 +232,7 @@ export class Grid {
         }
         
         // Store all indices of the grid in an array
-        const all_indices: Array<[number, number]> = [];
-        for(let i = 0; i < this.row_count; i = i + 1) {
-            for(let j = 0; j < this.col_count; j = j + 1) {
-                all_indices.push([i, j]);
-            }
-        }
+        const all_indices = this.get_all_indices();
 
         // Create a whitelist containing all indices not found in blacklist
         const whitelist = all_indices.filter((index) =>
@@ -249,6 +258,18 @@ export class Grid {
 
         // Set the type of the cell to "mine"
         this.cell_at(row, col).set_type("mine");
+    }
+
+    /**
+     * Reveals all mine cells
+     */
+    reveal_all_mines() {
+        const all_indices = this.get_all_indices();
+        all_indices.forEach((index) => {
+            if(this.cell_at(index[0], index[1]).get_type() === "mine") {
+                this.reveal(index[0], index[1]); 
+            } 
+        });
     }
 
     /**
