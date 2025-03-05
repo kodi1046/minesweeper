@@ -1,6 +1,7 @@
-import { GridError, InvalidMinesError, NegativeGridError, InvalidIndexError } from "./errors";
+import { GridError, InvalidMinesError, NegativeGridError, InvalidIndexError } from "./errors.js";
 
 type CellGrid = Array<Array<Cell>>;
+type GameState = "win" | "lose" | "undecided";
 
 /**
  * Represents a grid of size (row_count * col_count), containting Cells...   
@@ -8,28 +9,47 @@ type CellGrid = Array<Array<Cell>>;
 export class Grid {
     
     //Properties
-    grid: CellGrid;
-    row_count: number;
-    col_count: number;
-    mine_count: number;
-    desired_mines: number
-    revealed_empty_count: number;
-
-    // Constructs a grid of unrevealed empty cells
-    constructor(row_count: number, col_count: number, desired_mines: number) {
+    grid: CellGrid; 
+    row_count: number; // Number of rows
+    col_count: number; // Number of columns
+    mine_count: number; // Number of mines
+    desired_mine_count: number // Number of desired mines 
+    safe_cells: number; // Number of unrevealed empty cells
+    flag_count: number; // Number of flagged cells
+    game_state: GameState; // State of the game
+    
+    /**
+     * Constructs a grid of empty, unrevealed cells
+     * @param row_count
+     * @param col_count
+     * @param desired_mine_count
+     */
+    constructor(row_count: number, col_count: number, desired_mine_count: number) {
 
         if(row_count < 0 || col_count < 0) {
             throw new NegativeGridError(row_count, col_count);
         }
-        this.grid = Array.from({ length: row_count }, () => 
-            Array.from({ length: col_count}, () => 
-                new Cell("empty", "unrevealed")));
+        this.grid = [];
+        for (let i = 0; i < row_count; i++) {
+            const row: Cell[] = [];
+            for (let j = 0; j < col_count; j++) { 
+                row.push(new Cell("empty", "unrevealed"));
+            }
+            this.grid.push(row);
+        }
+
+        // this.grid = Array.from({ length: row_count }, () => 
+        //     Array.from({ length: col_count}, () => 
+        //         new Cell("empty", "unrevealed")));
 
         this.row_count = row_count;
         this.col_count = col_count;
-        this.desired_mines = desired_mines;
+        this.desired_mine_count = desired_mine_count;
+        this.safe_cells = this.get_empty_count();
+
         this.mine_count = 0;
-        this.revealed_empty_count = 0;
+        this.flag_count = 0;
+        this.game_state = "undecided";
     }
 
 
@@ -40,7 +60,7 @@ export class Grid {
 
     // Gets the number of columns
     get_col_count(): number {
-        return this.row_count;
+        return this.col_count;
     }
 
     // Gets the number of mine cells
@@ -50,16 +70,40 @@ export class Grid {
 
     // Gets the number of empty cells
     get_empty_count(): number {
-        return this.row_count * this.col_count - this.mine_count;
+        return this.row_count * this.col_count - this.desired_mine_count;
+    }
+
+    // Gets the number of desired mines
+    get_desired_mine_count(): number {
+        return this.desired_mine_count;
+    }
+
+    // Gets the current state of the game
+    get_game_state(): GameState {
+        return this.game_state
     }
     
+    /**
+     * Gets all indices of the grid
+     * @returns Array of indices [number, number] representing all cells
+     */
+    get_all_indices(): Array<[number, number]> {
+        const all_indices: Array<[number, number]> = [];
+        for(let i = 0; i < this.row_count; i = i + 1) {
+            for(let j = 0; j < this.col_count; j = j + 1) {
+                all_indices.push([i, j]);
+            }
+        }
+        return all_indices;
+    }
 
     /**
-     * gets the neighbors of a given cell at @Index (@row, @col)
-     * @param row 
-     * @param col 
+     * Gets indices of all neighbors of a cell
+     * @param row
+     * @param col
+     * @returns Array of indices [number, number] representing neighboring cells
      */
-    get_neighbors(row, col): Array<[number, number]> {
+    get_neighbors(row : number, col : number): Array<[number, number]> {
         const neighbors: Array<[number, number]> = 
                         [
                         [row - 1, col - 1],
@@ -73,25 +117,23 @@ export class Grid {
                         ]
         return neighbors.filter((index) => this.is_valid_index(index[0], index[1]));
     }
-
-    // Checks if a given index is valid
+    
+    /**
+     * Checks if a given index exists on the grid
+     * @param row 
+     * @param col 
+     * @returns True if the index exists on the grid, false otherwise
+     */
     is_valid_index(row: number, col: number): boolean {
         return (row < this.row_count && row >= 0 && 
                 col < this.col_count && col >= 0)
     }
 
-    // checks if mines are valid
-    is_valid_mines_count(mines: number): boolean {
-        if (mines < 0 || mines > this.row_count || mines > this.col_count ) {
-            return false;
-        }
-        return true;
-    }
-
     /**
-     * Gets the cell at index (row, col)
-     * @param row < row_count
-     * @param col < col_count
+     * Gets the cell at given index, only if index is valid
+     * @param row 
+     * @param col 
+     * @returns Cell at [row, col]
      */
     cell_at(row: number, col: number): Cell {
         if(this.is_valid_index(row, col)) {
@@ -101,101 +143,73 @@ export class Grid {
             throw new InvalidIndexError(row, col, this.row_count, this.col_count);
         }
     }
-    
-    /**
-     * sets state to revealed at index (row, col)
-     * @param row < row_count && row >= 0
-     * @param col < col_count && col >= 0
-     * @param type
-     */
-    set_type_at(row: number, col: number, type: CellType ) {
-        this.cell_at(row, col).set_type(type);
-    }
 
     /**
-     * Updates the state of a cell at index (row, col)
-     * @param row < row_count && row >= 0
-     * @param col < col_count && col >= 0
-     * @param state
+     * Reveals a cell at a given index & sets game states
+     * @param row 
+     * @param col 
      */
-      set_state_at(row: number, col: number, state: CellState) {
-        this.cell_at(row, col).set_state(state);
-    }
-
-    // Reveals a cell, reveals all neighboring cells if it has no neighboring mines
-    reveal(row: number, col: number) 
-    {
-        // Handle initial reveal to populate grid with mines outside the starting area.
-        if(this.revealed_empty_count === 0) {
-            const start = this.get_neighbors(row, col);
-            start.push([row, col]);
-            this.populate_with_mines(this.desired_mines, start);
-        }
-
+    reveal(row: number, col: number) {
         const cell = this.cell_at(row, col);
-        
-        if(cell.get_state() === "unrevealed") {
-            if(cell.neighboring_mine_count === 0) {
-                this.reveal_neighbors(row, col);
-            }
+        if(cell.get_state() === "unrevealed")
+        {
             cell.set_state("revealed");
 
-            // Increment the number of unrevealed empty cells
-            if(cell.get_type() === "empty") {
-            this.revealed_empty_count = this.revealed_empty_count + 1;
+            // If cell is of type empty 
+            if(cell.get_type() === "empty"){
+                
+                // Decrement number of remaining empty cells
+                this.safe_cells--;
+
+                // If no remaining empty cells to reveal, win the game
+                if(this.safe_cells === 0) {
+                    this.game_state = "win";
+                }
+
+                // If cell has no neighboring mines, reveal all neighbors
+                if(cell.get_neighboring_mine_count() === 0) {
+                    this.reveal_neighbors(row, col);
+                }
             }
+
+            // If revealed cell is a mine, lose the game
+            if(cell.get_type() === "mine") {
+                this.game_state = "lose";
+                this.reveal_all_mines();
+            }
+            
         }
     }
-    
-    /*
-    reveal_neighbors(row: number, col: number) {
-        const neighbors: Array<[number, number]> = this.get_neighbors(row, col);
-        unrevealed_neighbors.forEach((neighbor) => this.reveal(neighbor[0], neighbor[1]));
-    }
-    */
 
     /**
-     * Reveals all neighbors of a given index
-     * @param row < row_count && row >= 0
-     * @param col < col_count && col >= 0
+     * Reveals neighbors at a given index
+     * @param row 
+     * @param col 
      */
     reveal_neighbors(row: number, col: number) {
-        if (row < 0 || row >= this.row_count || col < 0 || col >= this.col_count) {
-            return;
-        }
+        const neighbors: Array<[number, number]> = this.get_neighbors(row, col);
+        neighbors.forEach((neighbor) => this.reveal(neighbor[0], neighbor[1]));
+    }
+    
 
-        const cell : Cell = this.grid[row][col]; 
-
-        // Ends recursion if cell is already revealed, or a mine
-        if (cell.get_state() === "revealed" || cell.isMine()){
-            return;
-        }
-        
-        this.set_state_at(row, col, "revealed");
-
-
-        // Ends recursion if cell has adjacent mines
-        if(cell.get_adjacent_mines() > 0) {
-            return;
-        }
-
-        for(let i = -1; i <= 1; i++ ){
-            for(let j = -1; j <= 1; j++){
-                if (i === 0 && j === 0){
-                    continue;
-                }
-                const new_row = row + i;
-                const new_col = col + j;
-
-                this.reveal_neighbors(new_row, new_col);
-            }
+    /**
+     * Flags / unflags a cell at a given index
+     * @param row 
+     * @param col 
+     */
+    flag(row: number, col: number) {
+        const cell = this.cell_at(row, col);
+        if(cell.get_state() === "unrevealed") {
+            cell.set_state("flagged");
+        } else if (cell.get_state() === "flagged") {
+            cell.set_state("unrevealed");
         }
     }
 
     /**
      * Populates the grid with an @amount of mines at random indices, excluding those in @blacklist
-     * @param amount
-     * @param blacklist
+     * @param amount amount of mines to fill the grid with
+     * @param blacklist the indices not to be filled with mines
      * Recursive
      */
     populate_with_mines(amount: number, blacklist: Array<[number, number]> = []) {
@@ -219,12 +233,7 @@ export class Grid {
         }
         
         // Store all indices of the grid in an array
-        const all_indices: Array<[number, number]> = [];
-        for(let i = 0; i < this.row_count; i = i + 1) {
-            for(let j = 0; j < this.col_count; j = j + 1) {
-                all_indices.push([i, j]);
-            }
-        }
+        const all_indices = this.get_all_indices();
 
         // Create a whitelist containing all indices not found in blacklist
         const whitelist = all_indices.filter((index) =>
@@ -234,7 +243,11 @@ export class Grid {
         add_mine(amount, whitelist);
     }
 
-    // Sets a mine at the given index and increments neighboring_mine_count of each neighbor
+    /**
+     * Sets a mine at the given index and increments neighboring_mine_count of each neighbor
+     * @param row 
+     * @param col 
+     */
     set_mine(row: number, col: number) {
 
         // Acquire the indices of each of the mine's neighbors
@@ -248,14 +261,32 @@ export class Grid {
         this.cell_at(row, col).set_type("mine");
     }
 
-    // checks if the board is in a state of winning (checks win-condition)
-    has_won(): boolean {
-        return this.revealed_empty_count === this.get_empty_count();
+    /**
+     * Reveals all mine cells
+     */
+    reveal_all_mines() {
+        const all_indices = this.get_all_indices();
+        all_indices.forEach((index) => {
+            if(this.cell_at(index[0], index[1]).get_type() === "mine") {
+                this.reveal(index[0], index[1]); 
+            } 
+        });
     }
 
+    /**
+     * Fills the grid with mines excluding the area directly neighboring the starting cell
+     * @param row - row of starting cell
+     * @param col - col of starting cell
+     */
+    game_start(row: number, col: number) { 
+        // Create a 3x3 starting area to be excluded from mine generation
+        const start = this.get_neighbors(row, col);
+        start.push([row, col]);
+
+        //Populate the grid with mines
+        this.populate_with_mines(this.get_desired_mine_count(), start);
+    }
 };
-
-
 
 type CellType = "mine" | "empty";
 type CellState = "revealed" | "unrevealed" | "flagged";
@@ -268,12 +299,17 @@ export class Cell {
     // Properties
     type: CellType;
     state: CellState;
-    neighboring_mine_count: number = 0;
+    neighboring_mine_count: number;
 
-    // Constructs a cell
+    /**
+     * Creates a cell with a type and a state
+     * @param type 
+     * @param state 
+     */
     constructor(type: CellType, state: CellState) {
         this.type = type;   
         this.state = state;
+        this.neighboring_mine_count = 0;
     }
 
     // Gets the type of the cell
@@ -296,14 +332,8 @@ export class Cell {
         this.type = type;
     }
 
-    // Bool for mines
-    isMine(): boolean {
-        return this.type === "mine";
-    }
-
     // Gets numbers of adjacent mines
-    get_adjacent_mines(): number {
+    get_neighboring_mine_count(): number {
         return this.neighboring_mine_count;
     }
-
 };
