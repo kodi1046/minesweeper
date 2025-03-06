@@ -1,7 +1,7 @@
 import { Cell, Grid } from "../modules/classes.js";
 import { Move, player_move} from "../modules/game_module.js";
 
-import promptSync from 'prompt-sync';
+import * as promptSync from 'prompt-sync'
 const prompt = promptSync();
 
 const MINE_SYMBOL = "*";
