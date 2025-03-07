@@ -68,9 +68,10 @@ export class Grid {
         return this.mine_count;
     }
 
-    // Gets the number of empty cells
+    // Gets the expected number of empty cells according to desired_mine_count
     get_empty_count(): number {
-        return this.row_count * this.col_count - this.desired_mine_count;
+        const empty_count = this.row_count * this.col_count - this.desired_mine_count;
+        return empty_count > 0 ? empty_count : 1;
     }
 
     // Gets the number of desired mines
