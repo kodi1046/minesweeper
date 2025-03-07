@@ -164,6 +164,7 @@ export class Grid {
                 // If no remaining empty cells to reveal, win the game
                 if(this.safe_cells === 0) {
                     this.game_state = "win";
+                    this.flag_all_mines();
                 }
 
                 // If cell has no neighboring mines, reveal all neighbors
@@ -262,7 +263,7 @@ export class Grid {
     }
 
     /**
-     * Reveals all mine cells
+     * Reveals all mine cells, except those that have been flagged
      */
     reveal_all_mines() {
         const all_indices = this.get_all_indices();
@@ -274,13 +275,33 @@ export class Grid {
     }
 
     /**
+     * Flags all mine cells
+     */
+    flag_all_mines() {
+        const all_indices = this.get_all_indices();
+        all_indices.forEach((index) => {
+            if(this.cell_at(index[0], index[1]).get_type() === "mine") {
+                this.cell_at(index[0], index[1]).set_state("flagged");
+            } 
+        });
+    }
+
+
+    /**
      * Fills the grid with mines excluding the area directly neighboring the starting cell
      * @param row - row of starting cell
      * @param col - col of starting cell
      */
     game_start(row: number, col: number) { 
         // Create a 3x3 starting area to be excluded from mine generation
-        const start = this.get_neighbors(row, col);
+        let start: Array<[number, number]> = [];
+        const neighbors = this.get_neighbors(row, col);
+
+        if(this.get_row_count() * this.get_col_count() >= this.desired_mine_count + neighbors.length) {
+            start = neighbors;
+        }
+    
+        // Exclude the selected cell from mine generation
         start.push([row, col]);
 
         //Populate the grid with mines
