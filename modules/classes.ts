@@ -26,9 +26,14 @@ export class Grid {
      */
     constructor(row_count: number, col_count: number, desired_mine_count: number) {
 
-        if(row_count < 0 || col_count < 0) {
+        if (row_count < 0 || col_count < 0) {
             throw new NegativeGridError(row_count, col_count);
         }
+
+        if (desired_mine_count <= 0 || desired_mine_count > row_count * col_count) {
+            throw new InvalidMinesError(desired_mine_count, row_count, col_count);
+        }
+
         this.grid = [];
         for (let i = 0; i < row_count; i++) {
             const row: Cell[] = [];
