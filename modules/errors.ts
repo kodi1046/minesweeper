@@ -33,4 +33,3 @@ export class InvalidIndexError extends Error {
 
 export type GridError = NegativeGridError | InvalidIndexError | InvalidMinesError;
 
-// export type CellError
