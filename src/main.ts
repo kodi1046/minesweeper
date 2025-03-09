@@ -10,10 +10,13 @@ const UNREVEALED_SYMBOL = "~";
 const EMPTY_SYMBOL = " ";
 
 function main() {
-    const row_count = get_game_setting("rows");
-    const col_count = get_game_setting("columns");
-    const mine_count = get_game_setting("mines");
 
+    // Get settings for the game
+    const row_count = int_input("Input the desired number of rows: ");
+    const col_count = int_input("Input the desired number of columns: ");
+    const mine_count = int_input("Input the desired number of mines: ");
+
+    // Construct the grid
     const grid = new Grid(row_count, col_count, mine_count);
 
     // Game loop
@@ -39,6 +42,11 @@ function main() {
 main();
 
 
+/**
+ * Asks for a players move on the given grid
+ * @param grid 
+ * @returns Move, representing the type of move to execute, and at which index
+ */
 function get_player_move(grid : Grid): Move {
     const row: number = int_input("Enter the row number: ", grid.row_count - 1);  
     const col: number = int_input("Enter the col number: ", grid.col_count - 1);  
@@ -52,55 +60,30 @@ function get_player_move(grid : Grid): Move {
 }
 
 /**
- * asks the user for number of @type "rows" | "cols" | "mines"
- * @param type 
- * @returns number of "rows" | "cols" | "mines"
- */
-function get_game_setting(type: string): number {
-
-    while (true){ 
-        let input: string | null = prompt(`input the desired number of ${type}: `);
-
-        if (input === null) {
-            console.error("invalid input");
-            continue;
-        }
-        let parsed_input : number = parseInt(input);
-
-        if (parsed_input <= 0 || isNaN(parsed_input)) {
-            console.error("invalid input");
-            continue; 
-        }
-        return parsed_input;
-    }
-}
-
-/**
  * Displays a given grid
  * @param grid 
  */
 function display_grid(grid: Grid) {
-    const rows = grid.get_row_count();
     const cols = grid.get_col_count();
     
     // Print column markers
-    let col_number_string = "   ";
+    let col_marker_string = "   ";
     for(let col_number = 0; col_number < cols; col_number++) {
-        col_number_string += ` ${col_number % 10}`
+        col_marker_string += ` ${col_number % 10}`
     }
-    console.log(col_number_string);
+    console.log(col_marker_string);
     console.log();
     
-    //
-    let row_number = 0; // Row marker
+
+    let row_marker = 0;
     for(const row of grid.grid) {
-        let row_string = `${row_number % 10}  `;
+        let row_string = `${row_marker % 10}  `;
         for (const cell of row) {
             const symbol = cell_symbol(cell);
                 row_string += ` ${symbol}`;
         }
         console.log(row_string);
-        row_number++;
+        row_marker++;
     }
 }
 
@@ -129,26 +112,27 @@ function cell_symbol(cell: Cell): string {
 }
 
 /**
- * Checks if given number is acceptable
+ * Asks the user for a non-negative integer that is not higher than @max, any decimals are rounded down
  * @param message 
+ * @param error_message
  * @param max 
- */
-
-function int_input(message: string, max: number): number {
+ * @returns The given integer
+ * */
+function int_input(message: string, max: number = Infinity, error_message: string = "Invalid input"): number {
     while (true) {
         let input: string | null = prompt(message);
 
         if (input === null) {
-            console.error("Invalid input");
+            console.error(error_message);
             continue;
         }
         const value: number = parseInt(input);
 
         if (isNaN(value) || value < 0 || value > max) {
-            console.error("Invalid input.");
+            console.error(error_message);
             continue;
         }
-        return value;
+        return Math.floor(value);
     }
 }
 
