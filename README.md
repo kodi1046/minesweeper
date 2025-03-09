@@ -39,7 +39,7 @@ deno src/main.js
 ### How to Play
 >For documentation about the rules of the game, consult [the wiki](https://minesweeper.online/). Note that our implementation doesn't have all the same features as [this implementation](https://minesweeperonline.com/#).
 
-When prompted about `number of rows`, `number of columns` and `number of mines` input *appropriate* amounts, then input a `row` and a `col`, this means moving to the cell at index `(row, col)`. You also have the choice of moving or flagging, which can be decided by inputting either 0 or 1. The game ends either when you have won or you have lost.
+When prompted about `number of rows`, `number of columns` and `number of mines` input *appropriate* amounts, then input a `row` and a `col`, this means moving to the cell at index `(row, col)`. You also have the choice of flagging or revealing the cell, which can be decided by inputting either 0 or 1. The game ends when you have either revealed all empty cells(won) or revealed a cell with a mine(lost).
 
 ### tests
 
