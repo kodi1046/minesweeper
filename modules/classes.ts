@@ -30,7 +30,7 @@ export class Grid {
             throw new NegativeGridError(row_count, col_count);
         }
 
-        if (desired_mine_count <= 0 || desired_mine_count > row_count * col_count) {
+        if (desired_mine_count < 0 || desired_mine_count > row_count * col_count - 1) {
             throw new InvalidMinesError(desired_mine_count, row_count, col_count);
         }
 

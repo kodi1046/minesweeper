@@ -1,8 +1,6 @@
-import { Grid, Cell } from './classes.js'
-import { GridError, InvalidIndexError, InvalidMinesError, NegativeGridError } from './errors.js';
+import { Grid } from './classes.js'
 
-// declarations
-const ACCESS_REVEALED = "can't move to a revealed cell";
+// Declarations
 export type Move = {row: number, col: number, type: "reveal" | "flag"}
 type GameState = "win" | "lose" | "undecided";
 
@@ -19,6 +17,7 @@ export function player_move(move: Move, grid: Grid): GameState {
         grid.game_start(move.row, move.col);
     }
 
+    // Reveal the cell
     if(move.type === "reveal") {
         grid.reveal(move.row, move.col)
     }

@@ -5,7 +5,7 @@
  */
 export class InvalidMinesError extends Error {
     constructor(mines: number, rows: number, cols: number) {
-        super(`number of mines: ${mines} needs to be greater than 0 and less than total number of cells: ${rows * cols}`);
+        super(`number of mines: ${mines} needs to be atleast 0 and less than total number of cells: ${rows * cols}`);
         this.name = "InvalidMinesError";
     };
 }
