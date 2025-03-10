@@ -57,6 +57,10 @@ export class Grid {
         this.game_state = "undecided";
     }
 
+    // Gets the grid array matrix
+    get_grid(): CellGrid {
+        return this.grid;
+    }
 
     // Gets the number of rows
     get_row_count(): number {
@@ -262,7 +266,7 @@ export class Grid {
         
         // Increments mine_count for each neighbor of the mine
         neighbors.forEach((cell_index) => { const neighbor = this.cell_at(cell_index[0], cell_index[1])
-                                            neighbor.neighboring_mine_count++; });
+                                            neighbor.increment_neighboring_mine_count(); });
 
         // Set the type of the cell to "mine"
         this.cell_at(row, col).set_type("mine");
@@ -319,14 +323,14 @@ type CellType = "mine" | "empty";
 type CellState = "revealed" | "unrevealed" | "flagged";
 
 /**
- * A cell with a type and a state
+ * A cell with a type, a state and a neighboring_mine_count
  */
 export class Cell {
 
     // Properties
     type: CellType;
     state: CellState;
-    neighboring_mine_count: number;
+    neighboring_mine_count: number = 0;
 
     /**
      * Creates a cell with a type and a state
@@ -336,7 +340,6 @@ export class Cell {
     constructor(type: CellType, state: CellState) {
         this.type = type;   
         this.state = state;
-        this.neighboring_mine_count = 0;
     }
 
     // Gets the type of the cell
@@ -362,5 +365,10 @@ export class Cell {
     // Gets numbers of adjacent mines
     get_neighboring_mine_count(): number {
         return this.neighboring_mine_count;
+    }
+
+    // Increments neighboring mine count by one
+    increment_neighboring_mine_count(): void {
+        this.neighboring_mine_count++;
     }
 };

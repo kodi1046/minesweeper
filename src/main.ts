@@ -48,8 +48,8 @@ main();
  * @returns Move, representing the type of move to execute, and at which index
  */
 function get_player_move(grid : Grid): Move {
-    const row: number = int_input("Enter the row number: ", grid.row_count - 1);  
-    const col: number = int_input("Enter the col number: ", grid.col_count - 1);  
+    const row: number = int_input("Enter the row number: ", grid.get_row_count() - 1);  
+    const col: number = int_input("Enter the col number: ", grid.get_col_count() - 1);  
 
     let move_type : Move["type"] = "reveal";
     let choice: number = int_input("0 to flag and 1 to reveal: ", 1);
@@ -76,7 +76,7 @@ function display_grid(grid: Grid) {
     
 
     let row_marker = 0;
-    for(const row of grid.grid) {
+    for(const row of grid.get_grid()) {
         let row_string = `${row_marker % 10}  `;
         for (const cell of row) {
             const symbol = cell_symbol(cell);
