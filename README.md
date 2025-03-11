@@ -2,9 +2,7 @@ A simple terminal based implementation of [Minesweeper](https://minesweeper.onli
 
 <img src="./Misc/minesweeper_showcase.png" alt="Minesweeper showcase" width="300" style="display:block; margin-left:auto; margin-right:auto; margin-top: 20px; margin-bottom: 20px;"/>
 
-![License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Languages](https://img.shields.io/github/languages/top/kodi1046/minesweeper.svg)
-
 
 
 ### Dependencies
@@ -13,7 +11,12 @@ A simple terminal based implementation of [Minesweeper](https://minesweeper.onli
 ### Build
 Start by cloning the repository.
 
-To compile the project run the following command in the root directory of the project (`minesweeper/`)
+To install necessary packages run following the command in the root directory of the project (`minesweeper/`)
+```
+npm i
+```
+
+To compile the project run:
 ```
 tsc src/main.ts
 ```
@@ -39,7 +42,7 @@ deno src/main.js
 ### How to Play
 >For documentation about the rules of the game, consult [the wiki](https://minesweeper.online/). Note that our implementation doesn't have all the same features as [this implementation](https://minesweeperonline.com/#).
 
-When prompted about `number of rows`, `number of columns` and `number of mines` input *appropriate* amounts, then input a `row` and a `col`, this means moving to the cell at index `(row, col)`. You also have the choice of flagging or revealing the cell, which can be decided by inputting either 0 or 1. The game ends when you have either revealed all empty cells(won) or revealed a cell with a mine(lost).
+When prompted about `number of rows`, `number of columns` and `number of mines` input *appropriate* amounts, then input a `row` and a `col`, this means selecting the cell at index `(row, col)`. You also have the choice of flagging or revealing the cell, which can be decided by inputting either 0 or 1. The game ends when you have either revealed all empty cells(won) or revealed a cell with a mine(lost).
 
 ### tests
 
