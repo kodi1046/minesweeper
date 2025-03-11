@@ -1,4 +1,4 @@
-import { Cell, Grid } from "../modules/classes.js";
+import { Cell, Grid, GameState } from "../modules/classes.js";
 import { Move, player_move} from "../modules/game_module.js";
 
 import * as promptSync from 'prompt-sync'
@@ -24,7 +24,7 @@ function main() {
         display_grid(grid);
 
         const move: Move = get_player_move(grid);
-        const result = player_move(move, grid);
+        const result: GameState = player_move(move, grid);
 
         if(result === "win") {
             console.log("You win!")

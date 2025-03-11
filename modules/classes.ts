@@ -1,7 +1,7 @@
 import { GridError, InvalidMinesError, NegativeGridError, InvalidIndexError } from "./errors.js";
 
 type CellGrid = Array<Array<Cell>>;
-type GameState = "win" | "lose" | "undecided";
+export type GameState = "win" | "lose" | "undecided";
 
 /**
  * Represents a grid of size (row_count * col_count), containting Cells...   

@@ -1,14 +1,12 @@
-import { Grid } from './classes.js'
+import { Grid, GameState } from './classes.js'
 
 // Declarations
 export type Move = {row: number, col: number, type: "reveal" | "flag"}
-type GameState = "win" | "lose" | "undecided";
 
 /**
- * calculates a move to position (@row, @col)
- * @param row 
- * @param col 
- * @param flag 
+ * Executes a given move on a given grid
+ * @param move - the move to execute
+ * @param grid - grid to execute on
  */
 export function player_move(move: Move, grid: Grid): GameState {
     
