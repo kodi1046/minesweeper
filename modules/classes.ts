@@ -12,10 +12,11 @@ export class Grid {
     grid: CellGrid; 
     row_count: number; // Number of rows
     col_count: number; // Number of columns
-    mine_count: number; // Number of mines
-    desired_mine_count: number // Number of desired mines 
+
+    mine_count: number; // Number of mine cells
+    desired_mine_count: number // Desired number of mine cells
+    
     safe_cells: number; // Number of unrevealed empty cells
-    flag_count: number; // Number of flagged cells
     game_state: GameState; // State of the game
     
     /**
@@ -53,7 +54,6 @@ export class Grid {
         this.safe_cells = this.get_empty_count();
 
         this.mine_count = 0;
-        this.flag_count = 0;
         this.game_state = "undecided";
     }
 
