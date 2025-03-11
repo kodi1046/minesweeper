@@ -45,15 +45,7 @@ deno src/main.js
 When prompted about `number of rows`, `number of columns` and `number of mines` input *appropriate* amounts, then input a `row` and a `col`, this means selecting the cell at index `(row, col)`. You also have the choice of flagging or revealing the cell, which can be decided by inputting either 0 or 1. The game ends when you have either revealed all empty cells(won) or revealed a cell with a mine(lost).
 
 ### tests
-
-To run the tests you need to have `jest` installed. To install it run the following command:
-
-using `npm`:
-```
-npm i jest
-```
-
-Then, to run the tests run:
+To run the tests run the command:
 ```
 jest
 ```
